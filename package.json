@@ -1,0 +1,12 @@
+{
+  "name": "avocado-bot",
+  "version": "1.0.0",
+  "description": "avocado bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Susisu <susisu2413@yahoo.co.jp> (https://github.com/susisu)",
+  "license": "MIT",
+  "private": true
+}
