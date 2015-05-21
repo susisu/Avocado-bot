@@ -8,5 +8,8 @@
   },
   "author": "Susisu <susisu2413@yahoo.co.jp> (https://github.com/susisu)",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "avocore": "git://github.com/susisu/Avocore.git"
+  }
 }
