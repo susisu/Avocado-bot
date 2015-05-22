@@ -19,63 +19,56 @@ var keys =
         config["access_token_secret"]
     );
 
+function parseJSON(json) {
+    return new avocore.Action(function (emit) {
+        var data;
+        try {
+            data = JSON.parse(json);
+        }
+        catch (error) {
+            console.log(error);
+        }
+        if (data !== undefined) {
+            emit(data);
+        }
+    });
+}
+
 module.exports = [
     avocore.cron("00 */10 * * * *")
         .then(twitter.tweetRandom(keys, "data/random.txt", "\n", "utf8")),
     avocore.cron("00 */5 * * * *")
         .then(avocore.readFile("data/reply_log.json", "utf8"))
-        .bind(function (logJSON) {
-            var logData;
-            return new avocore.Action(function (emit) {
-                    try {
-                        logData = JSON.parse(logJSON);
-                        if (logData["latest_reply_id_str"] !== undefined) {
-                            emit(logData["latest_reply_id_str"]);
-                        }
-                        else {
-                            console.log("\"latest_reply_id_str\" not found");
-                        }
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                })
-                .bind(function (sinceIdStr) {
-                    return twitter.replyMentions(keys, config["screen_name"],
-                            100, sinceIdStr, require("./data/reply_patterns.js"))
-                        .bind(function (latestIdStr) {
-                            logData["latest_reply_id_str"] = latestIdStr;
-                            return avocore.writeFile("data/reply_log.json",
-                                    JSON.stringify(logData), "utf8");
-                        });
+        .bind(parseJSON)
+        .bind(function (data) {
+            return twitter.replyMentions(
+                    keys, config["screen_name"],
+                    100, data["latest_reply_id_str"],
+                    require("./data/reply_patterns.js")
+                )
+                .bind(function (latestIdStr) {
+                    data["latest_reply_id_str"] = latestIdStr;
+                    return avocore.writeFile(
+                            "data/reply_log.json",
+                            JSON.stringify(data), "utf8"
+                        );
                 });
         }),
     avocore.cron("00 */5 * * * *")
         .then(avocore.readFile("data/reply_timeline_log.json", "utf8"))
-        .bind(function (logJSON) {
-            var logData;
-            return new avocore.Action(function (emit) {
-                    try {
-                        logData = JSON.parse(logJSON);
-                        if (logData["latest_reply_timeline_id_str"] !== undefined) {
-                            emit(logData["latest_reply_timeline_id_str"]);
-                        }
-                        else {
-                            console.log("\"latest_reply_timeline_id_str\" not found");
-                        }
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                })
-                .bind(function (sinceIdStr) {
-                    return twitter.replyHomeTimeline(keys, config["screen_name"],
-                            100, sinceIdStr, require("./data/reply_timeline_patterns.js"))
-                        .bind(function (latestIdStr) {
-                            logData["latest_reply_timeline_id_str"] = latestIdStr;
-                            return avocore.writeFile("data/reply_timeline_log.json",
-                                    JSON.stringify(logData), "utf8");
-                        });
+        .bind(parseJSON)
+        .bind(function (data) {
+            return twitter.replyHomeTimeline(
+                    keys, config["screen_name"],
+                    100, data["latest_reply_timeline_id_str"],
+                    require("./data/reply_timeline_patterns.js")
+                )
+                .bind(function (latestIdStr) {
+                    data["latest_reply_timeline_id_str"] = latestIdStr;
+                    return avocore.writeFile(
+                            "data/reply_timeline_log.json",
+                            JSON.stringify(data), "utf8"
+                        );
                 });
         }),
     avocore.cron("00 */10 * * * *")
