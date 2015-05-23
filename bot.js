@@ -47,7 +47,9 @@ module.exports = [
                     require("./data/reply_patterns.js")
                 )
                 .bind(function (latestIdStr) {
-                    data["latest_reply_id_str"] = latestIdStr === "0" ? "" : latestIdStr;
+                    if (latestIdStr !== "0") {
+                        data["latest_reply_id_str"] = latestIdStr;
+                    }
                     return avocore.writeFile(
                             "data/reply_log.json",
                             JSON.stringify(data), "utf8"
@@ -64,7 +66,9 @@ module.exports = [
                     require("./data/reply_timeline_patterns.js")
                 )
                 .bind(function (latestIdStr) {
-                    data["latest_reply_timeline_id_str"] = latestIdStr === "0" ? "" : latestIdStr;
+                    if (latestIdStr !== "0") {
+                        data["latest_reply_timeline_id_str"] = latestIdStr;
+                    }
                     return avocore.writeFile(
                             "data/reply_timeline_log.json",
                             JSON.stringify(data), "utf8"
